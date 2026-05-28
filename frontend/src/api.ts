@@ -1,0 +1,118 @@
+import axios from "axios";
+import type {
+  Article, ArticleCard, Cart, CartItem, Category, Order, Pet, PetIn,
+  Product, ProductCard, RecommendationBlock, Review, TokenResp, User,
+} from "./types";
+
+export const API_URL =
+  (import.meta.env.VITE_API_URL as string | undefined) ?? "/api";
+
+export const api = axios.create({
+  baseURL: API_URL,
+  timeout: 15000,
+});
+
+api.interceptors.request.use((cfg) => {
+  const token = localStorage.getItem("token");
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
+
+// ---- Auth ----
+export const authApi = {
+  register: (data: { email: string; name: string; password: string }) =>
+    api.post<TokenResp>("/auth/register", data).then((r) => r.data),
+  login: (data: { email: string; password: string }) =>
+    api.post<TokenResp>("/auth/login", data).then((r) => r.data),
+  me: () => api.get<User>("/auth/me").then((r) => r.data),
+  updateMe: (data: { name?: string; photo?: string | null }) =>
+    api.patch<User>("/auth/me", data).then((r) => r.data),
+};
+
+// ---- Upload ----
+export const uploadApi = {
+  image: (file: File, kind: "user" | "pet" | "misc" = "misc") => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return api
+      .post<{ url: string; key: string }>(`/upload/image?kind=${kind}`, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data);
+  },
+};
+
+// ---- Catalog ----
+export interface CatalogFilters {
+  category?: string;
+  q?: string;
+  min_price?: number;
+  max_price?: number;
+  brand?: string;
+  min_rating?: number;
+  sort?: "popular" | "price_asc" | "price_desc" | "rating";
+  limit?: number;
+}
+export const catalogApi = {
+  categories: () => api.get<Category[]>("/categories").then((r) => r.data),
+  products: (f: CatalogFilters = {}) =>
+    api.get<ProductCard[]>("/products", { params: f }).then((r) => r.data),
+  product: (id: string) => api.get<Product>(`/products/${id}`).then((r) => r.data),
+  brands: () => api.get<string[]>("/products/brands").then((r) => r.data),
+};
+
+// ---- Reviews ----
+export const reviewsApi = {
+  list: (productId: string) =>
+    api.get<Review[]>(`/products/${productId}/reviews`).then((r) => r.data),
+  add: (productId: string, data: { rating: number; text: string }) =>
+    api.post<Review>(`/products/${productId}/reviews`, data).then((r) => r.data),
+};
+
+// ---- Cart ----
+export const cartApi = {
+  get: () => api.get<Cart>("/cart").then((r) => r.data),
+  add: (product_id: string, quantity: number) =>
+    api.post<Cart>("/cart/items", { product_id, quantity }).then((r) => r.data),
+  update: (product_id: string, quantity: number) =>
+    api.put<Cart>(`/cart/items/${product_id}`, { product_id, quantity }).then((r) => r.data),
+  remove: (product_id: string) =>
+    api.delete<Cart>(`/cart/items/${product_id}`).then((r) => r.data),
+  clear: () => api.delete<Cart>("/cart").then((r) => r.data),
+};
+
+// ---- Orders ----
+export const ordersApi = {
+  list: () => api.get<Order[]>("/orders").then((r) => r.data),
+  checkout: (data: { address: string; delivery_time: string; payment_method: string }) =>
+    api.post<Order>("/orders/checkout", data).then((r) => r.data),
+};
+
+// ---- Payments (mock) ----
+export const paymentsApi = {
+  pay: (order_id: string, amount: number) =>
+    api.post("/payments", { order_id, amount }).then((r) => r.data),
+};
+
+// ---- Pets ----
+export const petsApi = {
+  list: () => api.get<Pet[]>("/pets").then((r) => r.data),
+  create: (data: PetIn) => api.post<Pet>("/pets", data).then((r) => r.data),
+  update: (id: string, data: PetIn) => api.put<Pet>(`/pets/${id}`, data).then((r) => r.data),
+  remove: (id: string) => api.delete(`/pets/${id}`).then((r) => r.data),
+};
+
+// ---- Articles ----
+export const articlesApi = {
+  list: (q?: string, topic?: string) =>
+    api.get<ArticleCard[]>("/articles", { params: { q, topic } }).then((r) => r.data),
+  topics: () => api.get<string[]>("/articles/topics").then((r) => r.data),
+  get: (id: string) => api.get<Article>(`/articles/${id}`).then((r) => r.data),
+};
+
+// ---- Recommendations ----
+export const recsApi = {
+  get: () => api.get<RecommendationBlock[]>("/recommendations").then((r) => r.data),
+};
+
+export type { CartItem };

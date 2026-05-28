@@ -1,0 +1,14 @@
+.env
+**/node_modules
+**/dist
+**/build
+**/__pycache__
+**/*.pyc
+**/.venv
+**/.DS_Store
+**/.idea
+**/.vscode
+*.log
+_scrape/
+**/*.swp
+.claude/
