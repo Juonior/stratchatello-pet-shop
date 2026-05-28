@@ -171,4 +171,74 @@ class RecommendationsOut(BaseModel):
     products: List[ProductCardOut]
 
 
+# ===== Social: public user profile =====
+class PublicUser(BaseModel):
+    id: UUID
+    name: str
+    email: str
+    photo: Optional[str] = None
+    # Relation to the requesting user
+    relation: str = "stranger"  # "self" | "friend" | "request_sent" | "request_received" | "stranger"
+
+
+# ===== Social: posts =====
+class PostIn(BaseModel):
+    text: str = Field(min_length=1, max_length=2000)
+    image: Optional[str] = None
+
+
+class PostOut(BaseModel):
+    id: UUID
+    user_id: UUID
+    user_name: str
+    user_photo: Optional[str] = None
+    text: str
+    image: Optional[str] = None
+    created_at: datetime
+
+
+# ===== Social: friends =====
+class FriendOut(BaseModel):
+    id: UUID
+    name: str
+    email: Optional[str] = None
+    photo: Optional[str] = None
+    since: Optional[datetime] = None
+
+
+class FriendRequestOut(BaseModel):
+    user_id: UUID
+    name: str
+    photo: Optional[str] = None
+    created_at: datetime
+
+
+# ===== Social: messages =====
+class MessageIn(BaseModel):
+    text: str = Field(min_length=1, max_length=2000)
+
+
+class MessageOut(BaseModel):
+    id: UUID
+    from_user_id: UUID
+    text: str
+    created_at: datetime
+    mine: bool
+
+
+class ThreadOut(BaseModel):
+    peer_id: UUID
+    peer_name: str
+    peer_photo: Optional[str] = None
+    last_message_text: Optional[str] = None
+    last_message_at: Optional[datetime] = None
+    last_from_me: bool = False
+
+
+# ===== Social: feed =====
+class FeedItem(BaseModel):
+    post: PostOut
+    section: str  # "friends" | "discover"
+
+
 TokenOut.model_rebuild()

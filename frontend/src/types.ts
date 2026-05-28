@@ -132,3 +132,59 @@ export interface TokenResp {
   token_type: string;
   user: User;
 }
+
+// ===== Social =====
+export interface PublicUser {
+  id: string;
+  name: string;
+  email: string;
+  photo?: string | null;
+  relation: "self" | "friend" | "request_sent" | "request_received" | "stranger";
+}
+
+export interface Post {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_photo?: string | null;
+  text: string;
+  image?: string | null;
+  created_at: string;
+}
+
+export interface Friend {
+  id: string;
+  name: string;
+  email?: string;
+  photo?: string | null;
+  since?: string;
+}
+
+export interface FriendRequest {
+  user_id: string;
+  name: string;
+  photo?: string | null;
+  created_at: string;
+}
+
+export interface Message {
+  id: string;
+  from_user_id: string;
+  text: string;
+  created_at: string;
+  mine: boolean;
+}
+
+export interface Thread {
+  peer_id: string;
+  peer_name: string;
+  peer_photo?: string | null;
+  last_message_text?: string | null;
+  last_message_at?: string | null;
+  last_from_me: boolean;
+}
+
+export interface FeedItem {
+  post: Post;
+  section: "friends" | "discover";
+}

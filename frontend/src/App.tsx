@@ -14,6 +14,11 @@ import { Pets } from "./pages/Pets";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Profile } from "./pages/Profile";
+import { Feed } from "./pages/Feed";
+import { Users } from "./pages/Users";
+import { UserProfile } from "./pages/UserProfile";
+import { Messages } from "./pages/Messages";
+import { Chat } from "./pages/Chat";
 import { useAuth, useCart } from "./store";
 
 export default function App() {
@@ -46,6 +51,11 @@ export default function App() {
             <Route path="/articles/:id" element={<ArticlePage />} />
             <Route path="/pets" element={<Pets />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/users/:id" element={<UserProfile />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/messages/:peerId" element={<Chat />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>

@@ -6,6 +6,9 @@ import { LogoFull } from "./Logo";
 const links = [
   { to: "/", label: "Главная" },
   { to: "/catalog", label: "Каталог" },
+  { to: "/feed", label: "Лента", auth: true },
+  { to: "/users", label: "Друзья", auth: true },
+  { to: "/messages", label: "Сообщения", auth: true },
   { to: "/articles", label: "Статьи" },
   { to: "/pets", label: "Питомцы" },
 ];
@@ -28,13 +31,13 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
-          {links.map((l) => (
+          {links.filter((l) => !l.auth || isAuth).map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               end={l.to === "/"}
               className={({ isActive }) =>
-                `relative px-4 py-2 rounded-xl text-sm font-semibold transition ${
+                `relative px-3.5 py-2 rounded-xl text-sm font-semibold transition ${
                   isActive
                     ? "text-brand-700 bg-brand-100"
                     : "text-ink/70 hover:text-brand-600 hover:bg-brand-50"
@@ -105,7 +108,7 @@ export function Navbar() {
 
       <div className="md:hidden border-t border-brand-100 px-2 py-2 overflow-x-auto">
         <nav className="flex gap-1 w-max">
-          {links.map((l) => (
+          {links.filter((l) => !l.auth || isAuth).map((l) => (
             <NavLink
               key={l.to}
               to={l.to}

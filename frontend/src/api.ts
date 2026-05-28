@@ -1,7 +1,8 @@
 import axios from "axios";
 import type {
-  Article, ArticleCard, Cart, CartItem, Category, Order, Pet, PetIn,
-  Product, ProductCard, RecommendationBlock, Review, TokenResp, User,
+  Article, ArticleCard, Cart, CartItem, Category, FeedItem, Friend, FriendRequest,
+  Message, Order, Pet, PetIn, Post, Product, ProductCard, PublicUser,
+  RecommendationBlock, Review, Thread, TokenResp, User,
 } from "./types";
 
 export const API_URL =
@@ -113,6 +114,42 @@ export const articlesApi = {
 // ---- Recommendations ----
 export const recsApi = {
   get: () => api.get<RecommendationBlock[]>("/recommendations").then((r) => r.data),
+};
+
+// ---- Social ----
+export const usersApi = {
+  search: (q?: string) =>
+    api.get<PublicUser[]>("/users/search", { params: { q } }).then((r) => r.data),
+  get: (id: string) => api.get<PublicUser>(`/users/${id}`).then((r) => r.data),
+};
+
+export const friendsApi = {
+  list: () => api.get<Friend[]>("/friends").then((r) => r.data),
+  incoming: () => api.get<FriendRequest[]>("/friends/requests/incoming").then((r) => r.data),
+  outgoing: () => api.get<FriendRequest[]>("/friends/requests/outgoing").then((r) => r.data),
+  request: (userId: string) =>
+    api.post<{ status: string }>(`/friends/request/${userId}`).then((r) => r.data),
+  accept: (userId: string) => api.post(`/friends/accept/${userId}`).then((r) => r.data),
+  reject: (userId: string) => api.post(`/friends/reject/${userId}`).then((r) => r.data),
+  remove: (userId: string) => api.delete(`/friends/${userId}`).then((r) => r.data),
+};
+
+export const postsApi = {
+  create: (text: string, image?: string | null) =>
+    api.post<Post>("/posts", { text, image }).then((r) => r.data),
+  remove: (postId: string) => api.delete(`/posts/${postId}`).then((r) => r.data),
+  ofUser: (userId: string) => api.get<Post[]>(`/users/${userId}/posts`).then((r) => r.data),
+};
+
+export const messagesApi = {
+  threads: () => api.get<Thread[]>("/messages/threads").then((r) => r.data),
+  list: (peerId: string) => api.get<Message[]>(`/messages/${peerId}`).then((r) => r.data),
+  send: (peerId: string, text: string) =>
+    api.post<Message>(`/messages/${peerId}`, { text }).then((r) => r.data),
+};
+
+export const feedApi = {
+  get: () => api.get<FeedItem[]>("/feed").then((r) => r.data),
 };
 
 export type { CartItem };

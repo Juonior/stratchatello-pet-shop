@@ -228,6 +228,94 @@ SCHEMA_STATEMENTS = [
         published_at timestamp
     )
     """,
+
+    # ===== Social network =====
+
+    # Posts — main table (lookup by post id)
+    """
+    CREATE TABLE IF NOT EXISTS posts (
+        id timeuuid PRIMARY KEY,
+        user_id uuid,
+        user_name text,
+        user_photo text,
+        text text,
+        image text,
+        created_at timestamp
+    )
+    """,
+
+    # Posts by user (timeline of one author)
+    """
+    CREATE TABLE IF NOT EXISTS posts_by_user (
+        user_id uuid,
+        post_id timeuuid,
+        text text,
+        image text,
+        created_at timestamp,
+        PRIMARY KEY ((user_id), post_id)
+    ) WITH CLUSTERING ORDER BY (post_id DESC)
+    """,
+
+    # Friendships — one row per direction (so we always know "my friends")
+    """
+    CREATE TABLE IF NOT EXISTS friendships (
+        user_id uuid,
+        friend_id uuid,
+        friend_name text,
+        friend_photo text,
+        friend_email text,
+        since timestamp,
+        PRIMARY KEY ((user_id), friend_id)
+    )
+    """,
+
+    # Pending friend requests — split for incoming/outgoing lookup
+    """
+    CREATE TABLE IF NOT EXISTS friend_requests_incoming (
+        user_id uuid,
+        from_user_id uuid,
+        from_user_name text,
+        from_user_photo text,
+        created_at timestamp,
+        PRIMARY KEY ((user_id), from_user_id)
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS friend_requests_outgoing (
+        user_id uuid,
+        to_user_id uuid,
+        to_user_name text,
+        to_user_photo text,
+        created_at timestamp,
+        PRIMARY KEY ((user_id), to_user_id)
+    )
+    """,
+
+    # Direct messages: messages indexed by deterministic thread_key
+    """
+    CREATE TABLE IF NOT EXISTS dm_messages (
+        thread_key text,
+        msg_id timeuuid,
+        from_user_id uuid,
+        text text,
+        created_at timestamp,
+        PRIMARY KEY ((thread_key), msg_id)
+    ) WITH CLUSTERING ORDER BY (msg_id ASC)
+    """,
+
+    # Threads per user: shows summary of each conversation
+    """
+    CREATE TABLE IF NOT EXISTS dm_threads_by_user (
+        user_id uuid,
+        peer_id uuid,
+        peer_name text,
+        peer_photo text,
+        last_message_text text,
+        last_message_at timestamp,
+        last_from_me boolean,
+        PRIMARY KEY ((user_id), peer_id)
+    )
+    """,
 ]
 
 
