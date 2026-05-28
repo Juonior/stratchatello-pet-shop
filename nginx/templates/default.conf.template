@@ -1,18 +1,11 @@
 # nginx config — single entry point for the whole stack.
 # ${DOMAIN} is substituted at container start by `envsubst` (nginx feature).
 
-# HTTP → ACME challenge + redirect to HTTPS
+# HTTP → permanent redirect to HTTPS
 server {
     listen 80;
     server_name ${DOMAIN} www.${DOMAIN};
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-
-    location / {
-        return 301 https://$host$request_uri;
-    }
+    return 301 https://$host$request_uri;
 }
 
 server {

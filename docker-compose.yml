@@ -99,33 +99,14 @@ services:
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
       - ./nginx/init-ssl.sh:/docker-entrypoint.d/40-init-ssl.sh:ro
-      - letsencrypt:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt   # volume holds SSL certs (any provider, name kept for compat)
     depends_on:
       - backend
       - frontend
       - minio
     restart: unless-stopped
 
-  certbot:
-    image: certbot/certbot:latest
-    container_name: zoomarket-certbot
-    volumes:
-      - letsencrypt:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    # Auto-renewal: tries every 12h, reloads nginx via a shared socket trick is
-    # not used — user runs `docker compose exec nginx nginx -s reload` manually
-    # OR uses the renew hook (see README).
-    entrypoint: >
-      /bin/sh -c "trap exit TERM;
-        while :; do
-          certbot renew --webroot -w /var/www/certbot --quiet;
-          sleep 12h & wait $${!};
-        done;"
-    restart: unless-stopped
-
 volumes:
   cassandra_data:
   minio_data:
   letsencrypt:
-  certbot_www:
