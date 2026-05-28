@@ -188,3 +188,47 @@ export interface FeedItem {
   post: Post;
   section: "friends" | "discover";
 }
+
+export interface Comment {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_photo?: string | null;
+  text: string;
+  created_at: string;
+}
+
+// Group chats
+export interface ChatMember {
+  id: string;
+  name: string;
+  photo?: string | null;
+}
+
+export interface ChatRoom {
+  id: string;
+  title: string;
+  photo?: string | null;
+  created_by: string;
+  created_at: string;
+  members: ChatMember[];
+}
+
+export interface ChatThread {
+  room_id: string;
+  title: string;
+  photo?: string | null;
+  last_message_text?: string | null;
+  last_message_at?: string | null;
+  last_from_name?: string | null;
+}
+
+export interface ChatMessage {
+  id: string;
+  from_user_id: string;
+  from_name: string;
+  from_photo?: string | null;
+  text: string;
+  created_at: string;
+  mine: boolean;
+}

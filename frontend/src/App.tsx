@@ -19,6 +19,7 @@ import { Users } from "./pages/Users";
 import { UserProfile } from "./pages/UserProfile";
 import { Messages } from "./pages/Messages";
 import { Chat } from "./pages/Chat";
+import { GroupChat } from "./pages/GroupChat";
 import { useAuth, useCart } from "./store";
 
 export default function App() {
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/users/:id" element={<UserProfile />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/messages/:peerId" element={<Chat />} />
+            <Route path="/chats/:roomId" element={<GroupChat />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>

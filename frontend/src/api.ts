@@ -1,8 +1,8 @@
 import axios from "axios";
 import type {
-  Article, ArticleCard, Cart, CartItem, Category, FeedItem, Friend, FriendRequest,
-  Message, Order, Pet, PetIn, Post, Product, ProductCard, PublicUser,
-  RecommendationBlock, Review, Thread, TokenResp, User,
+  Article, ArticleCard, Cart, CartItem, Category, ChatMessage, ChatRoom, ChatThread,
+  Comment, FeedItem, Friend, FriendRequest, Message, Order, Pet, PetIn, Post,
+  Product, ProductCard, PublicUser, RecommendationBlock, Review, Thread, TokenResp, User,
 } from "./types";
 
 export const API_URL =
@@ -150,6 +150,30 @@ export const messagesApi = {
 
 export const feedApi = {
   get: () => api.get<FeedItem[]>("/feed").then((r) => r.data),
+};
+
+export const commentsApi = {
+  list: (postId: string) =>
+    api.get<Comment[]>(`/posts/${postId}/comments`).then((r) => r.data),
+  add: (postId: string, text: string) =>
+    api.post<Comment>(`/posts/${postId}/comments`, { text }).then((r) => r.data),
+  remove: (postId: string, commentId: string) =>
+    api.delete(`/posts/${postId}/comments/${commentId}`).then((r) => r.data),
+};
+
+export const chatsApi = {
+  list: () => api.get<ChatThread[]>("/chats").then((r) => r.data),
+  create: (title: string, member_ids: string[], photo?: string | null) =>
+    api.post<ChatRoom>("/chats", { title, member_ids, photo }).then((r) => r.data),
+  get: (roomId: string) => api.get<ChatRoom>(`/chats/${roomId}`).then((r) => r.data),
+  addMember: (roomId: string, userId: string) =>
+    api.post<ChatRoom>(`/chats/${roomId}/members/${userId}`).then((r) => r.data),
+  removeMember: (roomId: string, userId: string) =>
+    api.delete(`/chats/${roomId}/members/${userId}`).then((r) => r.data),
+  messages: (roomId: string) =>
+    api.get<ChatMessage[]>(`/chats/${roomId}/messages`).then((r) => r.data),
+  send: (roomId: string, text: string) =>
+    api.post<ChatMessage>(`/chats/${roomId}/messages`, { text }).then((r) => r.data),
 };
 
 export type { CartItem };

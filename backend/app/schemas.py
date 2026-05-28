@@ -235,6 +235,65 @@ class ThreadOut(BaseModel):
     last_from_me: bool = False
 
 
+# ===== Comments =====
+class CommentIn(BaseModel):
+    text: str = Field(min_length=1, max_length=1000)
+
+
+class CommentOut(BaseModel):
+    id: UUID
+    user_id: UUID
+    user_name: str
+    user_photo: Optional[str] = None
+    text: str
+    created_at: datetime
+
+
+# ===== Group chats (беседы) =====
+class ChatRoomIn(BaseModel):
+    title: str = Field(min_length=1, max_length=80)
+    member_ids: List[UUID] = Field(default_factory=list)
+    photo: Optional[str] = None
+
+
+class ChatMemberOut(BaseModel):
+    id: UUID
+    name: str
+    photo: Optional[str] = None
+
+
+class ChatRoomOut(BaseModel):
+    id: UUID
+    title: str
+    photo: Optional[str] = None
+    created_by: UUID
+    created_at: datetime
+    members: List[ChatMemberOut] = []
+
+
+class ChatThreadOut(BaseModel):
+    room_id: UUID
+    title: str
+    photo: Optional[str] = None
+    last_message_text: Optional[str] = None
+    last_message_at: Optional[datetime] = None
+    last_from_name: Optional[str] = None
+
+
+class ChatMessageIn(BaseModel):
+    text: str = Field(min_length=1, max_length=2000)
+
+
+class ChatMessageOut(BaseModel):
+    id: UUID
+    from_user_id: UUID
+    from_name: str
+    from_photo: Optional[str] = None
+    text: str
+    created_at: datetime
+    mine: bool
+
+
 # ===== Social: feed =====
 class FeedItem(BaseModel):
     post: PostOut

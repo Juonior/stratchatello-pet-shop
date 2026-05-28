@@ -22,6 +22,8 @@ from .routers import (
     posts_router,
     messages_router,
     feed_router,
+    comments_router,
+    chats_router,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
@@ -70,6 +72,8 @@ app.include_router(friends_router.router)
 app.include_router(posts_router.router)
 app.include_router(messages_router.router)
 app.include_router(feed_router.router)
+app.include_router(comments_router.router)
+app.include_router(chats_router.router)
 
 
 @app.get("/api/health")

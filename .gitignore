@@ -12,3 +12,4 @@
 _scrape/
 **/*.swp
 .claude/
+frontend/tsconfig.tsbuildinfo

@@ -316,6 +316,65 @@ SCHEMA_STATEMENTS = [
         PRIMARY KEY ((user_id), peer_id)
     )
     """,
+
+    # ===== Post comments =====
+    """
+    CREATE TABLE IF NOT EXISTS post_comments (
+        post_id timeuuid,
+        comment_id timeuuid,
+        user_id uuid,
+        user_name text,
+        user_photo text,
+        text text,
+        created_at timestamp,
+        PRIMARY KEY ((post_id), comment_id)
+    ) WITH CLUSTERING ORDER BY (comment_id ASC)
+    """,
+
+    # ===== Group chats (беседы) =====
+    """
+    CREATE TABLE IF NOT EXISTS chat_rooms (
+        id uuid PRIMARY KEY,
+        title text,
+        photo text,
+        created_by uuid,
+        created_at timestamp
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS chat_room_members (
+        room_id uuid,
+        user_id uuid,
+        name text,
+        photo text,
+        joined_at timestamp,
+        PRIMARY KEY ((room_id), user_id)
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS chat_rooms_by_user (
+        user_id uuid,
+        room_id uuid,
+        title text,
+        photo text,
+        last_message_text text,
+        last_message_at timestamp,
+        last_from_name text,
+        PRIMARY KEY ((user_id), room_id)
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS chat_messages (
+        room_id uuid,
+        msg_id timeuuid,
+        from_user_id uuid,
+        from_name text,
+        from_photo text,
+        text text,
+        created_at timestamp,
+        PRIMARY KEY ((room_id), msg_id)
+    ) WITH CLUSTERING ORDER BY (msg_id ASC)
+    """,
 ]
 
 
