@@ -1,0 +1,7 @@
+# Force LF line endings for shell scripts and config files used by Linux containers.
+# Without this, a Windows checkout produces CRLF which breaks /bin/sh and nginx.
+*.sh           text eol=lf
+*.conf         text eol=lf
+*.template     text eol=lf
+Dockerfile     text eol=lf
+.env*          text eol=lf

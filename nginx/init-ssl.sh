@@ -7,6 +7,11 @@ DOMAIN="${DOMAIN:-localhost}"
 DIR="/etc/letsencrypt/live/$DOMAIN"
 if [ ! -f "$DIR/fullchain.pem" ]; then
     echo "[init-ssl] No cert for $DOMAIN — generating self-signed..."
+    # nginx:alpine ships libssl but no openssl CLI — install if missing.
+    if ! command -v openssl >/dev/null 2>&1; then
+        echo "[init-ssl] openssl CLI missing — installing via apk..."
+        apk add --no-cache openssl >/dev/null
+    fi
     mkdir -p "$DIR"
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout "$DIR/privkey.pem" \
