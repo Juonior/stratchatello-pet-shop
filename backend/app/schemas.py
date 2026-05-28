@@ -185,6 +185,12 @@ class PublicUser(BaseModel):
 class PostIn(BaseModel):
     text: str = Field(min_length=1, max_length=2000)
     image: Optional[str] = None
+    video: Optional[str] = None
+
+
+class PostFromUrlIn(BaseModel):
+    text: str = Field(default="", max_length=2000)
+    url: str = Field(min_length=10, max_length=600)
 
 
 class PostOut(BaseModel):
@@ -194,6 +200,7 @@ class PostOut(BaseModel):
     user_photo: Optional[str] = None
     text: str
     image: Optional[str] = None
+    video: Optional[str] = None
     created_at: datetime
 
 

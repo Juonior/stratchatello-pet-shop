@@ -105,8 +105,21 @@ export function PostCard({ post, onDelete, sectionLabel, index = 0 }: Props) {
           </button>
         )}
       </div>
-      <p className="mt-3 whitespace-pre-line text-ink/85 leading-relaxed">{post.text}</p>
-      {post.image && (
+      {post.text && (
+        <p className="mt-3 whitespace-pre-line text-ink/85 leading-relaxed">{post.text}</p>
+      )}
+      {post.video && (
+        <div className="mt-3 rounded-2xl overflow-hidden border border-brand-100 bg-black">
+          <video
+            src={post.video}
+            controls
+            playsInline
+            preload="metadata"
+            className="w-full max-h-[600px] block mx-auto"
+          />
+        </div>
+      )}
+      {post.image && !post.video && (
         <div className="mt-3 rounded-2xl overflow-hidden border border-brand-100">
           <img src={post.image} alt="" className="w-full max-h-[480px] object-cover" />
         </div>

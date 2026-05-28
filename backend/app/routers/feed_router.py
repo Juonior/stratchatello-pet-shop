@@ -11,7 +11,8 @@ router = APIRouter(prefix="/api/feed", tags=["feed"])
 def _row_to_post(r) -> schemas.PostOut:
     return schemas.PostOut(
         id=r.id, user_id=r.user_id, user_name=r.user_name, user_photo=r.user_photo,
-        text=r.text, image=r.image, created_at=r.created_at,
+        text=r.text, image=r.image, video=getattr(r, "video", None),
+        created_at=r.created_at,
     )
 
 
@@ -26,7 +27,7 @@ def feed(current=Depends(get_current_user)):
 
     # 2. All posts (small demo scale) — fetch and partition
     all_rows = s.execute(
-        "SELECT id, user_id, user_name, user_photo, text, image, created_at FROM posts"
+        "SELECT id, user_id, user_name, user_photo, text, image, video, created_at FROM posts"
     ).all()
     friends_posts = []
     discover_posts = []

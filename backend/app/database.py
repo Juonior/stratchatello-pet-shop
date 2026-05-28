@@ -240,9 +240,11 @@ SCHEMA_STATEMENTS = [
         user_photo text,
         text text,
         image text,
+        video text,
         created_at timestamp
     )
     """,
+    "ALTER TABLE posts ADD video text",
 
     # Posts by user (timeline of one author)
     """
@@ -251,10 +253,12 @@ SCHEMA_STATEMENTS = [
         post_id timeuuid,
         text text,
         image text,
+        video text,
         created_at timestamp,
         PRIMARY KEY ((user_id), post_id)
     ) WITH CLUSTERING ORDER BY (post_id DESC)
     """,
+    "ALTER TABLE posts_by_user ADD video text",
 
     # Friendships — one row per direction (so we always know "my friends")
     """

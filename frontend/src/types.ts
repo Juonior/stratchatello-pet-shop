@@ -149,6 +149,7 @@ export interface Post {
   user_photo?: string | null;
   text: string;
   image?: string | null;
+  video?: string | null;
   created_at: string;
 }
 

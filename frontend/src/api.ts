@@ -137,6 +137,8 @@ export const friendsApi = {
 export const postsApi = {
   create: (text: string, image?: string | null) =>
     api.post<Post>("/posts", { text, image }).then((r) => r.data),
+  fromUrl: (url: string, text: string = "") =>
+    api.post<Post>("/posts/from-url", { url, text }, { timeout: 120000 }).then((r) => r.data),
   remove: (postId: string) => api.delete(`/posts/${postId}`).then((r) => r.data),
   ofUser: (userId: string) => api.get<Post[]>(`/users/${userId}/posts`).then((r) => r.data),
 };
