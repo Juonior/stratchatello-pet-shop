@@ -1,12 +1,40 @@
 """Download a video from a public URL (TikTok, YouTube, Instagram, etc.) via yt-dlp."""
 import logging
 import os
+import re
 import tempfile
+import urllib.request
 from typing import Optional
 
 import yt_dlp
 
 logger = logging.getLogger(__name__)
+
+# Patterns of short/redirect URLs that yt-dlp sometimes mishandles.
+# We resolve their redirect server-side and feed the canonical URL to yt-dlp.
+_SHORT_URL_PATTERNS = (
+    re.compile(r"^https?://(www\.)?tiktok\.com/t/"),
+    re.compile(r"^https?://vm\.tiktok\.com/"),
+    re.compile(r"^https?://vt\.tiktok\.com/"),
+    re.compile(r"^https?://youtu\.be/"),
+)
+
+
+def _resolve_short_url(url: str, timeout: float = 8.0) -> str:
+    if not any(p.match(url) for p in _SHORT_URL_PATTERNS):
+        return url
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        })
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            resolved = r.geturl()
+            if resolved and resolved != url:
+                logger.info("Resolved %s → %s", url, resolved)
+                return resolved
+    except Exception as e:
+        logger.warning("Redirect resolve failed for %s: %s", url, e)
+    return url
 
 # 40 MB cap — bigger files would chew through our limited VPS disk
 MAX_FILESIZE = 40 * 1024 * 1024
@@ -22,6 +50,7 @@ class VideoFetchError(Exception):
 
 def fetch_video(url: str) -> tuple[bytes, str]:
     """Return (raw_bytes, content_type). Raises on failure."""
+    url = _resolve_short_url(url)
     with tempfile.TemporaryDirectory() as tmp:
         outtmpl = os.path.join(tmp, "%(id)s.%(ext)s")
         ydl_opts = {
