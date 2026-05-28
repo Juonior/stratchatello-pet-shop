@@ -1,7 +1,7 @@
 import axios from "axios";
 import type {
   Article, ArticleCard, Cart, CartItem, Category, ChatMessage, ChatRoom, ChatThread,
-  Comment, FeedItem, Friend, FriendRequest, Message, Order, Pet, PetIn, Post,
+  Comment, FeedItem, Friend, FriendRequest, LikeState, Message, Order, Pet, PetIn, Post,
   Product, ProductCard, PublicUser, RecommendationBlock, Review, Thread, TokenResp, User,
 } from "./types";
 
@@ -161,6 +161,11 @@ export const commentsApi = {
     api.post<Comment>(`/posts/${postId}/comments`, { text }).then((r) => r.data),
   remove: (postId: string, commentId: string) =>
     api.delete(`/posts/${postId}/comments/${commentId}`).then((r) => r.data),
+};
+
+export const likesApi = {
+  like: (postId: string) => api.post<LikeState>(`/posts/${postId}/like`).then((r) => r.data),
+  unlike: (postId: string) => api.delete<LikeState>(`/posts/${postId}/like`).then((r) => r.data),
 };
 
 export const chatsApi = {

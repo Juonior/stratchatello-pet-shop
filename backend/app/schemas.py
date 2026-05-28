@@ -202,6 +202,13 @@ class PostOut(BaseModel):
     image: Optional[str] = None
     video: Optional[str] = None
     created_at: datetime
+    likes_count: int = 0
+    liked_by_me: bool = False
+
+
+class LikeStateOut(BaseModel):
+    liked_by_me: bool
+    likes_count: int
 
 
 # ===== Social: friends =====

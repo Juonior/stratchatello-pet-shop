@@ -4,15 +4,18 @@ from fastapi import APIRouter, Depends
 from .. import schemas
 from ..auth import get_current_user
 from ..database import get_session
+from .likes_router import count_likes, my_liked_post_ids
 
 router = APIRouter(prefix="/api/feed", tags=["feed"])
 
 
-def _row_to_post(r) -> schemas.PostOut:
+def _row_to_post(r, liked_ids: set, s) -> schemas.PostOut:
     return schemas.PostOut(
         id=r.id, user_id=r.user_id, user_name=r.user_name, user_photo=r.user_photo,
         text=r.text, image=r.image, video=getattr(r, "video", None),
         created_at=r.created_at,
+        likes_count=count_likes(s, r.id),
+        liked_by_me=r.id in liked_ids,
     )
 
 
@@ -42,10 +45,11 @@ def feed(current=Depends(get_current_user)):
     friends_posts.sort(key=lambda x: x.created_at, reverse=True)
     discover_posts.sort(key=lambda x: x.created_at, reverse=True)
 
+    liked_ids = my_liked_post_ids(s, current["id"])
     items: List[schemas.FeedItem] = []
     for r in friends_posts[:50]:
-        items.append(schemas.FeedItem(post=_row_to_post(r), section="friends"))
+        items.append(schemas.FeedItem(post=_row_to_post(r, liked_ids, s), section="friends"))
     # Top recent posts from strangers as "discover"
     for r in discover_posts[:10]:
-        items.append(schemas.FeedItem(post=_row_to_post(r), section="discover"))
+        items.append(schemas.FeedItem(post=_row_to_post(r, liked_ids, s), section="discover"))
     return items

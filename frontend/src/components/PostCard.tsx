@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
 import type { Comment, Post } from "../types";
 import { useAuth } from "../store";
-import { commentsApi } from "../api";
+import { commentsApi, likesApi } from "../api";
 
 interface Props {
   post: Post;
@@ -23,6 +23,34 @@ export function PostCard({ post, onDelete, sectionLabel, index = 0 }: Props) {
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+
+  const [liked, setLiked] = useState(post.liked_by_me);
+  const [likeCount, setLikeCount] = useState(post.likes_count);
+  const [likeBusy, setLikeBusy] = useState(false);
+
+  const toggleLike = async () => {
+    if (!me) {
+      toast("Войдите, чтобы ставить лайки", { icon: "🔒" });
+      return;
+    }
+    if (likeBusy) return;
+    const wasLiked = liked;
+    // Optimistic update
+    setLiked(!wasLiked);
+    setLikeCount((c) => c + (wasLiked ? -1 : 1));
+    setLikeBusy(true);
+    try {
+      const r = wasLiked ? await likesApi.unlike(post.id) : await likesApi.like(post.id);
+      setLiked(r.liked_by_me);
+      setLikeCount(r.likes_count);
+    } catch (e: any) {
+      setLiked(wasLiked);
+      setLikeCount((c) => c + (wasLiked ? 1 : -1));
+      toast.error(e?.response?.data?.detail || "Не удалось");
+    } finally {
+      setLikeBusy(false);
+    }
+  };
 
   const loadComments = async () => {
     if (comments !== null) return;
@@ -125,16 +153,36 @@ export function PostCard({ post, onDelete, sectionLabel, index = 0 }: Props) {
         </div>
       )}
 
-      {/* Comments toggle */}
-      <button
-        onClick={toggle}
-        className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-ink/60 hover:text-brand-600 transition"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-        </svg>
-        Комментарии{comments ? ` · ${comments.length}` : ""}
-      </button>
+      {/* Actions */}
+      <div className="mt-3 flex items-center gap-1">
+        <motion.button
+          onClick={toggleLike}
+          whileTap={{ scale: 0.88 }}
+          animate={liked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+          transition={{ duration: 0.25 }}
+          className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2.5 py-1.5 rounded-lg transition ${
+            liked
+              ? "text-rose-500 bg-rose-50 hover:bg-rose-100"
+              : "text-ink/60 hover:text-rose-500 hover:bg-rose-50"
+          }`}
+          aria-label={liked ? "Убрать лайк" : "Поставить лайк"}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          {likeCount > 0 ? likeCount : "Нравится"}
+        </motion.button>
+
+        <button
+          onClick={toggle}
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink/60 hover:text-brand-600 hover:bg-brand-50 px-2.5 py-1.5 rounded-lg transition"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+          </svg>
+          Комментарии{comments ? ` · ${comments.length}` : ""}
+        </button>
+      </div>
 
       <AnimatePresence>
         {open && (

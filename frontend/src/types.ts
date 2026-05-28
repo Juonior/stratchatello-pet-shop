@@ -151,6 +151,13 @@ export interface Post {
   image?: string | null;
   video?: string | null;
   created_at: string;
+  likes_count: number;
+  liked_by_me: boolean;
+}
+
+export interface LikeState {
+  liked_by_me: boolean;
+  likes_count: number;
 }
 
 export interface Friend {

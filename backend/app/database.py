@@ -321,6 +321,24 @@ SCHEMA_STATEMENTS = [
     )
     """,
 
+    # ===== Post likes =====
+    """
+    CREATE TABLE IF NOT EXISTS post_likes (
+        post_id timeuuid,
+        user_id uuid,
+        liked_at timestamp,
+        PRIMARY KEY ((post_id), user_id)
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS post_likes_by_user (
+        user_id uuid,
+        post_id timeuuid,
+        liked_at timestamp,
+        PRIMARY KEY ((user_id), post_id)
+    )
+    """,
+
     # ===== Post comments =====
     """
     CREATE TABLE IF NOT EXISTS post_comments (

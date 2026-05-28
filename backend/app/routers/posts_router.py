@@ -7,6 +7,7 @@ from .. import s3, schemas
 from ..auth import get_current_user
 from ..database import get_session
 from ..video_downloader import VideoFetchError, VideoTooLarge, fetch_video
+from .likes_router import count_likes, my_liked_post_ids
 
 router = APIRouter(tags=["posts"])
 
@@ -28,6 +29,7 @@ def _insert_post(s, current, text: str, image: str | None, video: str | None):
     return schemas.PostOut(
         id=pid, user_id=current["id"], user_name=me.name, user_photo=me.photo,
         text=text, image=image, video=video, created_at=now,
+        likes_count=0, liked_by_me=False,
     )
 
 
@@ -68,10 +70,13 @@ def get_post(post_id: UUID, current=Depends(get_current_user)):
     ).one()
     if not r:
         raise HTTPException(status_code=404, detail="Пост не найден")
+    liked = my_liked_post_ids(s, current["id"])
     return schemas.PostOut(
         id=r.id, user_id=r.user_id, user_name=r.user_name, user_photo=r.user_photo,
         text=r.text, image=r.image, video=getattr(r, "video", None),
         created_at=r.created_at,
+        likes_count=count_likes(s, r.id),
+        liked_by_me=r.id in liked,
     )
 
 
@@ -98,10 +103,13 @@ def list_user_posts(user_id: UUID, current=Depends(get_current_user)):
         "SELECT post_id, text, image, video, created_at FROM posts_by_user WHERE user_id=%s LIMIT 100",
         (user_id,)
     ).all()
+    liked = my_liked_post_ids(s, current["id"])
     return [
         schemas.PostOut(
             id=r.post_id, user_id=user.id, user_name=user.name, user_photo=user.photo,
             text=r.text, image=r.image, video=getattr(r, "video", None),
             created_at=r.created_at,
+            likes_count=count_likes(s, r.post_id),
+            liked_by_me=r.post_id in liked,
         ) for r in rows
     ]
